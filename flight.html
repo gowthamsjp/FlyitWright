@@ -2,7 +2,57 @@
 <html>
 <head>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <script src="flight.js"></script>
+  <script>
+    const suggestAirports = async () => {
+    document.getElementById("alternate-airports-section").style.display = "block";
+    let departureInput = document.getElementById("departure-input").value;
+    let arrivalInput = document.getElementById("arrival-input").value;
+    let withinMiles = document.getElementById("within-miles").value; 
+
+    let apiBody = JSON.stringify({
+        "resource": "/ccpbasicdetails",
+        "path": "/ccpbasicdetails",
+        "httpMethod": "POST",
+        "body": "{\"departure_airport\": \""+departureInput+
+                "\",\"destination_airport\": \""+arrivalInput+
+                "\", \"alternate_airports_within\":"+withinMiles+"}"
+      });
+
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    
+    var requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: apiBody,
+      redirect: 'follow'
+    };
+    
+    fetch("https://rlbkoiiew5.execute-api.us-east-2.amazonaws.com/production/ccpbasicdetails", requestOptions)
+      .then(response => response.text())
+      .then(result => {
+        result_json = JSON.parse(result);
+        result_body = JSON.parse(result_json["body"]);
+        alternate_airports = result_body['alternate_airports'];
+        console.log(alternate_airports);
+        var target = document.getElementById("alternate-airport-ids");
+        target.innerHTML = ''
+        for (let i = 0; i < alternate_airports.length; i++) {
+          let airportCode = alternate_airports[i].split('-')[0].trim()
+          target.innerHTML += '<a id="'+airportCode+'" href="#" onclick="addToInputTag(this.id)" class="list-group-item list-group-item-action">'+ alternate_airports[i] +'</a>';
+        }
+        
+      })  
+      .catch(error => console.log('error', error));
+}
+
+const addToInputTag = function(id) {
+  let tagsInput = document.getElementById("tags-input");
+  // $('tags-input').tagsinput('add', { "value": id, "text": id})
+  tagsInput.value += id + ','
+
+}
+  </script>
   <link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/flatly/bootstrap.min.css">
   <link href="tagsinput.css" rel="stylesheet" type="text/css">
@@ -18,7 +68,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
-  <script src="tagsinput.js"></script>
   <script type="text/javascript">
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-36251023-1']);
@@ -61,49 +110,18 @@
         <div class="input-group-prepend">
           <span class="input-group-text" id="">Alternate airports selected: </span>
         </div>
-        <input type="text" class="form-control">
+        <input id='tags-input' type="text" placeholder="Please enter comma {','} separated airport codes. Eg. 'KFWC,KACT'" class="form-control">
       </div>
       <br>
       <div>
-        <input type="text" data-role="tagsinput" value="jQuery,Script,Net">
-        <select multiple data-role="tagsinput" >
-          <option value="Amsterdam">Amsterdam</option>
-          <option value="Washington">Washington</option>
-          <option value="Sydney">Sydney</option>
-          <option value="Beijing">Beijing</option>
-          <option value="Cairo">Cairo</option>
-        </select>
+        <!-- <input id='tags-input' type="text" data-role="tagsinput" value=""> -->
+        <!-- <input id='tags-input' type="text" value=""> -->
       </div>
       <h5>List of suggested airports:</h5>
-      <div class="input-group" style="margin-bottom: 20px;">
-        <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
-        <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
-        <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
-        <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
-        <a href="#" class="list-group-item list-group-item-action">Vestibulum at eros</a>
+      <div id='alternate-airport-ids' class="input-group" style="margin-bottom: 20px;">
       </div>
       <button onclick="" type="submit" class="btn btn-primary">Submit</button>
     </div>
   </div>
-</body>
-</html>
-
-
-
-
-
-
-<!-- <!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>jQuery &amp; Bootstrap 4 Tagsinput.js Plugin Demos</title>
-</head> -->
-
-<body>
-  <div class="container">
-  
 </body>
 </html>
